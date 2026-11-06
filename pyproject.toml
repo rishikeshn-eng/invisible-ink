@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "invisible-ink"
+version = "0.1.0"
+description = "Detect and remove Unicode smuggling (tag chars, bidi overrides, variation-selector payloads, zero-width runs, homoglyphs) in text an AI model will trust — without breaking real multilingual content."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Rishikesh Nair" }]
+keywords = ["ai-safety", "prompt-injection", "unicode", "security", "sanitizer", "trojan-source", "homoglyph", "llm"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Security",
+  "Topic :: Text Processing :: Filters",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+invisible-ink = "invisible_ink.cli:main"
+
+[project.urls]
+Homepage = "https://rishikeshn-eng.github.io/invisible-ink/"
+Source = "https://github.com/rishikeshn-eng/invisible-ink"
+
+[tool.setuptools]
+packages = ["invisible_ink"]

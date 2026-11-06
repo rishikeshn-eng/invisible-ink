@@ -1,0 +1,37 @@
+{
+  "generated": "2026-11-07",
+  "flores": {
+    "sentences": 206448,
+    "languages": 204,
+    "critical_fp": 0,
+    "warning_fp": 46,
+    "fp_rate_pct": 0.0223,
+    "sanitize_changed_pct": 0.0562,
+    "latency_ms": {
+      "mean": 0.0957,
+      "p99": 0.2185
+    }
+  },
+  "attacks": {
+    "n": 18,
+    "detected": 18,
+    "recall_pct": 100.0,
+    "decode_ok": 7,
+    "decode_cases": 7,
+    "decode_pct": 100.0,
+    "by_vector": {
+      "tag-chars": 4,
+      "vs-payload": 3,
+      "bidi-override": 2,
+      "zero-width-run": 3,
+      "confusable-latin": 4,
+      "zero-width-embed": 1,
+      "noncharacter": 1
+    }
+  },
+  "tables": {
+    "confusables": 6712,
+    "latin_confusables": 656,
+    "script_ranges": 2321
+  }
+}

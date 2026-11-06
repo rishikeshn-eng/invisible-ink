@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>invisible-ink — see the Unicode smuggled into text before your model trusts it</title>
+<meta name="description" content="invisible-ink detects and decodes Unicode smuggling — tag-character ASCII smuggling, bidi Trojan Source, variation-selector payloads, zero-width runs, homoglyph spoofs — then sanitises the text without breaking real multilingual content. 0 critical false positives across 206,448 sentences in 204 languages; 100% attack recall. The demo runs the real scanner in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand"><span class="mk"></span><b>invisible-ink</b><span class="tag">v0.1</span></span>
+    <span class="links">
+      <a href="#demo">Demo</a>
+      <a href="#vectors">Attacks</a>
+      <a href="#results">Results</a>
+      <a href="#how">How it works</a>
+      <a class="gh" href="https://github.com/rishikeshn-eng/invisible-ink" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </span>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">AI agent safety · prompt-injection defence</div>
+    <h1>There may be text in here your <span class="em">eyes can't see.</span></h1>
+    <p class="lede">A web page, an email, a PDF, a pasted string — any of them can carry instructions or data
+      hidden in Unicode that renders as nothing to a human but reads loud and clear to a model: invisible
+      <b>tag characters</b>, <b>bidi overrides</b>, <b>variation-selector payloads</b>, <b>zero-width runs</b>,
+      <b>homoglyph spoofs</b>. <b>invisible-ink</b> finds it, decodes it, and strips it — without mangling real
+      Arabic, Hindi, Thai, or emoji.</p>
+
+    <div class="stat-strip">
+      <div class="s"><div class="n" id="s-fp">0</div><div class="l">critical false positives…</div></div>
+      <div class="s"><div class="n" id="s-corpus">206,448</div><div class="l">…across real sentences</div></div>
+      <div class="s"><div class="n" id="s-langs">204</div><div class="l">languages tested</div></div>
+      <div class="s"><div class="n" id="s-recall">100<small>%</small></div><div class="l">attack recall &amp; decode</div></div>
+    </div>
+
+    <div class="analyzer" id="demo">
+      <div class="an-head">
+        <span class="tl"><i></i><i></i><i></i></span>
+        <span class="title">reveal — paste any text, see what's hidden</span>
+        <span class="pill loading" id="statusPill"><span class="live"></span><span id="statusText">loading scanner…</span></span>
+      </div>
+      <div class="an-body">
+        <div class="io">
+          <div>
+            <div class="col-label"><span>input (what a human sees)</span></div>
+            <textarea id="input" spellcheck="false"></textarea>
+          </div>
+          <div>
+            <div class="col-label"><span>revealed (what the machine sees)</span><span style="color:var(--reveal)">■ hidden</span></div>
+            <div class="reveal-box" id="revealBox"></div>
+          </div>
+        </div>
+        <div class="presets" id="presets"><span class="lab">try an attack:</span></div>
+        <div id="resultOut"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="vectors">
+  <div class="wrap">
+    <div class="sec-tag">The smuggling vectors</div>
+    <h2>Five ways to hide text in plain sight.</h2>
+    <p class="sec-lede">Each is a real, documented technique. Click any card to load it into the demo above and
+      watch it get revealed and decoded.</p>
+    <div class="vectors" id="vectorGrid"></div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-tag">Evaluation</div>
+    <h2>Catches the attacks. Keeps the languages.</h2>
+    <p class="sec-lede">A sanitiser that strips all non-ASCII would catch every attack and destroy the world's
+      text. The hard part is precision on real multilingual content, so invisible-ink is calibrated against
+      <b>FLORES-200</b>: 1,012 professionally-translated sentences in each of 204 languages.</p>
+
+    <div class="bench-grid">
+      <div class="card col-6">
+        <h3>Precision on legitimate text</h3>
+        <div class="sub" id="fp-sub">FLORES-200 · real sentences across 204 languages</div>
+        <div class="bigstat"><span class="v" id="fp-crit">0</span><span class="u">critical false positives, out of 206,448 sentences</span></div>
+        <div style="margin-top:20px">
+          <div class="metric-row"><span class="k">Languages with zero false alarms</span><span class="val" id="fp-langs">—</span></div>
+          <div class="metric-row"><span class="k">Overall flag rate (all warnings)</span><span class="val" id="fp-rate">—</span></div>
+          <div class="metric-row"><span class="k">Legitimate text altered by the sanitiser</span><span class="val" id="fp-sani">—</span></div>
+        </div>
+        <p class="sub" style="margin-top:16px;margin-bottom:0">The remaining warnings are genuine mixed-script
+          tokens (a Cyrillic letter inside a Latin word) in transliterated text — flagged, correctly, as
+          confusable, and never as a hard threat.</p>
+      </div>
+
+      <div class="card col-6">
+        <h3>Recall on attacks</h3>
+        <div class="sub">every documented smuggling vector, with payload recovery where applicable</div>
+        <div class="bigstat"><span class="v" id="atk-recall">—</span><span class="u">of crafted attacks detected</span></div>
+        <div class="recallbar" style="margin-top:18px">
+          <div class="rb"><div class="lab"><span class="name">Detection</span><span class="pct" id="rb-det">—</span></div>
+            <div class="track"><i id="rb-det-bar"></i></div></div>
+          <div class="rb"><div class="lab"><span class="name">Hidden payload decoded byte-for-byte</span><span class="pct" id="rb-dec">—</span></div>
+            <div class="track"><i id="rb-dec-bar"></i></div></div>
+        </div>
+        <div style="margin-top:16px">
+          <div class="metric-row"><span class="k">Scan latency per input</span><span class="val" id="atk-lat">—</span></div>
+          <div class="metric-row"><span class="k">Confusable look-alikes in the table</span><span class="val" id="atk-conf">—</span></div>
+        </div>
+      </div>
+
+      <div class="card col-12">
+        <h3>Grounded in the Unicode standard, not guesswork</h3>
+        <div class="sub">character classes generated directly from the Unicode Character Database</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px" id="tableStats"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-tag">Under the hood</div>
+    <h2>Scan, decode, sanitise.</h2>
+    <p class="sec-lede">No model, no network. The detection rules come from the Unicode Character Database, and
+      the context logic is tuned so legitimate international typography (Indic/Arabic joiners, Thai word
+      breaks, CJK variation selectors, emoji ZWJ) is never mistaken for an attack.</p>
+    <div class="pipe">
+      <div class="step"><div class="num">01</div><h4>Classify every code point</h4>
+        <p>Against UCD-generated tables: default-ignorable, bidi controls, variation selectors, scripts, and a
+          6,712-entry confusables map.</p></div>
+      <div class="step"><div class="num">02</div><h4>Judge in context</h4>
+        <p>A zero-width joiner inside Devanagari is typography; the same character between two Latin letters is
+          smuggling. Script context decides.</p></div>
+      <div class="step"><div class="num">03</div><h4>Decode the payload</h4>
+        <p>Tag characters map back to ASCII; variation-selector runs decode to bytes. The hidden message is
+          recovered, not just flagged.</p></div>
+      <div class="step"><div class="num">04</div><h4>Sanitise, losslessly</h4>
+        <p>Strip the smuggling vectors while leaving legitimate multilingual text byte-for-byte intact.</p></div>
+    </div>
+    <div class="codeblock">
+      <div class="cb-head">sanitise untrusted input before it reaches your model</div>
+<pre><span class="c"># a tool returns web/email/document text — clean it before the model trusts it</span>
+<span class="k">from</span> invisible_ink <span class="k">import</span> scan, sanitize
+
+report = scan(tool_output)
+<span class="k">if</span> report.verdict == <span class="s">"dangerous"</span>:
+    log(<span class="s">"hidden payload:"</span>, report.hidden_text)   <span class="c"># the decoded instruction</span>
+
+clean = sanitize(tool_output).cleaned             <span class="c"># safe to pass on; languages intact</span>
+</pre>
+    </div>
+    <p class="sec-lede" style="margin-top:20px">Ships as a library and a CLI:
+      <code>invisible-ink --reveal "$text"</code> prints the hidden payload; <code>--clean</code> prints the
+      sanitised text.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="brand"><span class="mk"></span><b>invisible-ink</b></span>
+    <a href="https://github.com/rishikeshn-eng/invisible-ink" target="_blank" rel="noopener">Source &amp; benchmarks</a>
+    <span style="margin-left:auto;color:var(--text-faint)">Built by Rishikesh Nair · MIT licensed</span>
+    <p class="disclaimer">invisible-ink detects known Unicode smuggling techniques and is a defence-in-depth
+      layer, not a guarantee; new encodings can be devised, and the confusables signal is inherently
+      heuristic on mixed-script text. It reasons about characters, not meaning, and should sit alongside
+      input provenance and least-privilege execution. The live demo runs the exact published scanner in your
+      browser via Pyodide; all figures are reproducible from the repo, and the character tables are generated
+      from the public Unicode Character Database. Precision is measured on the FLORES-200 dataset.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
